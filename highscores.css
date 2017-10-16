@@ -9,7 +9,8 @@ html {
     text-align: center;
     color: green;
     font-size: 5vh;
-    text-decoration: blink;K
+    text-decoration: blink;
+    margin: 3vh, auto;
 }
 
 #scores {
@@ -19,13 +20,14 @@ html {
     margin-right: auto;
     width: 90%;
     font-size: 4vh;
-    height: 85vh;
+    height: 77vh;
     overflow-y: hidden;
 }
 
 #scores > .row {
     display: flex;
     flex-wrap: nowrap;
+    padding: 1.6vh;
 }
 
 .row:first-child {
@@ -53,6 +55,6 @@ html {
 
 #footer {
     vertical-align: bottom;
-    text-align: right;
-    padding: 10px;
+    text-align: center;
+    padding: 1.6vh;
 }
