@@ -1,0 +1,58 @@
+html {
+    background-color: black;
+    color: white;
+    font-family: 'Press Start 2P', 'mono';
+    font-size: 100%;
+}
+
+#title {
+    text-align: center;
+    color: green;
+    font-size: 5vh;
+    text-decoration: blink;K
+}
+
+#scores {
+    border: solid 1px red;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    font-size: 4vh;
+    height: 85vh;
+    overflow-y: hidden;
+}
+
+#scores > .row {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.row:first-child {
+    border-bottom: solid 1px green;
+}
+
+.user {
+    flex: 5;
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.hours {
+    flex: 1;
+    text-align: right;
+    padding-left: 2vw;
+}
+
+.jobs {
+    flex: 1;
+    text-align: right;
+    padding-left: 2vw;
+}
+
+#footer {
+    vertical-align: bottom;
+    text-align: right;
+    padding: 10px;
+}
