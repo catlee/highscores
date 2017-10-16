@@ -10,7 +10,7 @@ html {
     color: green;
     font-size: 5vh;
     text-decoration: blink;
-    margin: 3vh, auto;
+    margin: 3vh auto;
 }
 
 #scores {
@@ -56,5 +56,6 @@ html {
 #footer {
     vertical-align: bottom;
     text-align: center;
-    padding: 1.6vh;
+    padding: 2.2vh;
+    font-size: 2.6vh;
 }
