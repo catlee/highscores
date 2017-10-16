@@ -7,6 +7,10 @@ function formatDate(d) {
     return x.toLocaleString();
 }
 
+function trylink(a) {
+    return "https://treeherder.mozilla.org/#/jobs?repo=try&author=" + a;
+}
+
 async function get_scores() {
     let response = await fetch("https://sql.telemetry.mozilla.org/api/queries/47423/results.json?api_key=WKtQzeAXITaZl2ZDfPKlwrWyccAbiLhXafLxKV5G");
     let responseJson = await response.json();
@@ -44,13 +48,11 @@ async function get_scores() {
 
 class UserRow extends React.Component {
     render() {
-        return (
-            <div className="row">
-                <span className="user">{this.props.author}</span>
-                <span className="hours">{numberWithCommas(this.props.hours)}</span>
-                <span className="jobs">{numberWithCommas(this.props.jobs)}</span>
-            </div>
-        );
+        return [
+            <span className="user"><a href={trylink(this.props.author)} target="_new">{this.props.author}</a></span>,
+            <span className="hours">{numberWithCommas(this.props.hours)}</span>,
+            <span className="jobs">{numberWithCommas(this.props.jobs)}</span>,
+        ];
     }
 }
 
@@ -74,11 +76,9 @@ class HighscoresTable extends React.Component {
         return (
             <div>
             <div id="scores">
-                <div className="row">
-                    <span className="user">User</span>
-                    <span className="hours">Hours</span>
-                    <span className="jobs">Jobs</span>
-                </div>
+                <span className="user">User</span>
+                <span className="hours">Hours</span>
+                <span className="jobs">Jobs</span>
                 {this.renderRows()}
             </div>
             <div id="footer">
