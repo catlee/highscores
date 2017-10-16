@@ -34,6 +34,7 @@ html {
     text-align: left;
     overflow: hidden;
     white-space: nowrap;
+    padding-bottom: 1.6vh;
 }
 
 .user a {
@@ -45,12 +46,14 @@ html {
     grid-column: 2;
     text-align: right;
     padding-left: 2vw;
+    padding-bottom: 1.6vh;
 }
 
 .jobs {
     grid-column: 3;
     text-align: right;
     padding-left: 2vw;
+    padding-bottom: 1.6vh;
 }
 
 #footer {
