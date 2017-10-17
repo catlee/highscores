@@ -11,6 +11,42 @@ function trylink(a) {
     return "https://treeherder.mozilla.org/#/jobs?repo=try&author=" + a;
 }
 
+function array_equals(a, b) {
+    if (a.length != b.length) {
+        return false;
+    }
+    for (var i = 0; i < a.length; ++i){
+        if (a[i] != b[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function do_splash() {
+    document.querySelector("body").style.visibility = "hidden";
+    document.querySelector("html").className = "splash";
+
+    setTimeout(function() {
+        document.querySelector("body").style.visibility = "visible";
+        document.querySelector("html").className = "";
+        setTimeout(do_splash, 60000);
+    }, 5000);
+}
+
+let gKeys = [];
+let gIsSplashing = false;
+function onKeyDown(e) {
+    gKeys.push(e.key);
+    gKeys = gKeys.slice(-11);
+    if (array_equals(gKeys, ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"])) {
+        if (!gIsSplashing) {
+            do_splash();
+            gIsSplashing = true;
+        }
+    }
+}
+
 async function get_scores() {
     let response = await fetch("https://sql.telemetry.mozilla.org/api/queries/47423/results.json?api_key=WKtQzeAXITaZl2ZDfPKlwrWyccAbiLhXafLxKV5G");
     let responseJson = await response.json();
@@ -82,13 +118,14 @@ class HighscoresTable extends React.Component {
                 {this.renderRows()}
             </div>
             <div id="footer">
-            Report generated at {formatDate(this.state.queryTime)} for try pushes in the previous 7 days.
+            <a href="https://sql.telemetry.mozilla.org/queries/47423">Report</a> generated at {formatDate(this.state.queryTime)} for try pushes in the previous 7 days.
             </div>
             </div>
         );
     }
 
     async componentDidMount() {
+        document.getElementById("root").focus();
         let result = await get_scores();
         this.setState({
             rows: result.rows,
@@ -104,5 +141,6 @@ ReactDOM.render(
         <HighscoresTable />
         </div>
     ),
-    document.getElementById('root')
+    document.getElementById("root")
 );
+window.addEventListener("keydown", onKeyDown);

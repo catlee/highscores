@@ -4,6 +4,19 @@ html {
     font-family: 'Press Start 2P', 'mono';
 }
 
+html.splash {
+  background: url(Winners_Dont_Use_Drugs.png) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  image-rendering: -moz-crisp-edges;         /* Firefox */
+  image-rendering:   -o-crisp-edges;         /* Opera */
+  image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
+}
+
 #title {
     text-align: center;
     color: green;
@@ -61,4 +74,9 @@ html {
     text-align: center;
     padding-top: 2.2vh;
     font-size: 2.2vh;
+}
+
+#footer a {
+    color: white;
+    text-decoration: none;
 }
