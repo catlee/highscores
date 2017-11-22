@@ -1,36 +1,27 @@
 function numberWithCommas(x) {
-    return parseInt(x, 10).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return new Intl.NumberFormat().format(x.toFixed(0));
 }
 
 function formatDate(d) {
-    let x = new Date(d);
-    return x.toLocaleString();
+    return new Date(d).toLocaleString();
 }
 
-function trylink(a) {
-    return "https://treeherder.mozilla.org/#/jobs?repo=try&author=" + a;
+function tryLink(a) {
+    return `https://treeherder.mozilla.org/#/jobs?repo=try&author=${a}`;
 }
 
-function array_equals(a, b) {
-    if (a.length != b.length) {
-        return false;
-    }
-    for (var i = 0; i < a.length; ++i){
-        if (a[i] != b[i]) {
-            return false;
-        }
-    }
-    return true;
+function arraysEqual(a, b) {
+    return a.length === b.length && a.every((v, i) => b[i] === v);
 }
 
-function do_splash() {
+function doSplash() {
     document.querySelector("body").style.visibility = "hidden";
     document.querySelector("html").className = "splash";
 
     setTimeout(function() {
         document.querySelector("body").style.visibility = "visible";
         document.querySelector("html").className = "";
-        setTimeout(do_splash, 60000);
+        setTimeout(doSplash, 60000);
     }, 5000);
 }
 
@@ -39,21 +30,20 @@ let gIsSplashing = false;
 function onKeyDown(e) {
     gKeys.push(e.key);
     gKeys = gKeys.slice(-11);
-    if (array_equals(gKeys, ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"])) {
+    if (arraysEqual(gKeys, ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a", "Enter"])) {
         if (!gIsSplashing) {
-            do_splash();
+            doSplash();
             gIsSplashing = true;
         }
     }
 }
 
-async function get_scores() {
-    let response = await fetch("https://sql.telemetry.mozilla.org/api/queries/47423/results.json?api_key=WKtQzeAXITaZl2ZDfPKlwrWyccAbiLhXafLxKV5G");
-    let responseJson = await response.json();
+async function getScores() {
+    const response = await fetch("https://sql.telemetry.mozilla.org/api/queries/47423/results.json?api_key=WKtQzeAXITaZl2ZDfPKlwrWyccAbiLhXafLxKV5G");
+    const responseJson = await response.json();
+    const raw_rows = responseJson.query_result.data.rows;
     let rows_by_author = {};
-    let raw_rows = responseJson.query_result.data.rows;
-    for (var i = 0; i < raw_rows.length; ++i) {
-        let row = raw_rows[i];
+    for (let row of raw_rows) {
         if (!rows_by_author.hasOwnProperty(row.author)) {
             rows_by_author[row.author] = {
                 author: row.author,
@@ -61,31 +51,21 @@ async function get_scores() {
                 jobs: 0,
             }
         }
-        rows_by_author[row.author].elapsed += row.elapsed
-        rows_by_author[row.author].jobs += row.jobs
+        rows_by_author[row.author].elapsed += row.elapsed;
+        rows_by_author[row.author].jobs += row.jobs;
     }
-    let rows = new Array();
-    for (var author in rows_by_author) {
-        var row = rows_by_author[author];
-        rows.push(row);
-    }
-    rows = rows.sort(function(a, b) {
-        if (a.elapsed > b.elapsed) {
-            return -1;
-        } else {
-            return 1;
-        }
-    })
+    const rows = Object.values(rows_by_author)
+      .sort((a, b) => b.elapsed - a.elapsed);
     return {
         rows: rows,
         queryTime: responseJson.query_result.retrieved_at,
-    }
+    };
 }
 
 class UserRow extends React.Component {
     render() {
         return [
-            <span className="user"><a href={trylink(this.props.author)} target="_new">{this.props.author}</a></span>,
+            <span className="user"><a href={tryLink(this.props.author)} target="_new">{this.props.author}</a></span>,
             <span className="hours">{numberWithCommas(this.props.hours)}</span>,
             <span className="jobs">{numberWithCommas(this.props.jobs)}</span>,
         ];
@@ -93,43 +73,41 @@ class UserRow extends React.Component {
 }
 
 class HighscoresTable extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             rows: [],
             queryTime: new Date(),
         };
     }
 
-    renderRows() {
-        let rows = this.state.rows.map(row => {
-            return <UserRow key={row.author} author={row.author} hours={row.elapsed / 3600} jobs={row.jobs} />
-        });
-        return rows;
-    }
-
     render() {
         return (
             <div>
-            <div id="scores">
-                <span className="user">User</span>
-                <span className="hours">Hours</span>
-                <span className="jobs">Jobs</span>
-                {this.renderRows()}
-            </div>
-            <div id="footer">
-            <a href="https://sql.telemetry.mozilla.org/queries/47423">Report</a> generated at {formatDate(this.state.queryTime)} for try pushes in the previous 7 days.
-            </div>
+                <div id="scores">
+                    <span className="user">User</span>
+                    <span className="hours">Hours</span>
+                    <span className="jobs">Jobs</span>
+                    {this.state.rows.map(row =>
+                        <UserRow
+                            key={row.author}
+                            author={row.author}
+                            hours={row.elapsed / 3600}
+                            jobs={row.jobs} />
+                    )}
+                </div>
+                <div id="footer">
+                    <a href="https://sql.telemetry.mozilla.org/queries/47423">Report</a> generated at {formatDate(this.state.queryTime)} for try pushes in the previous 7 days.
+                </div>
             </div>
         );
     }
 
     async componentDidMount() {
         document.getElementById("root").focus();
-        let result = await get_scores();
+        const result = await getScores();
         this.setState({
-            rows: result.rows,
-            queryTime: result.queryTime,
+          ...result
         });
     }
 }
@@ -137,8 +115,8 @@ class HighscoresTable extends React.Component {
 ReactDOM.render(
     (
         <div>
-        <div id="title">Try High Scores</div>
-        <HighscoresTable />
+            <div id="title">Try High Scores</div>
+            <HighscoresTable />
         </div>
     ),
     document.getElementById("root")
